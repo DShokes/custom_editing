@@ -1,15 +1,14 @@
 #ArcGIS Online Editing Sample
 
-Simple example that consumes an ArcGIS Online web map and enables the default editing widget. 
+Simple example of attribute inspector and editing. 
 
 
 
-[View it live](http://thejones.github.com/arcgis_online_editingwidget/index.html)
+[View it live](http://thejones.github.com/custom_editing/index.html)
 
 
 
 ## Features
-* ArcGIS Online Web Map
 * Editing
 
 ## Instructions
