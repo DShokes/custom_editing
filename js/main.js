@@ -30,113 +30,51 @@ define(['esri/map',
     			this.initMap();
     		},
     		initMap: function(){
+    			var operationalLayer;
     			this.map = new esri.Map("map", {
 		          basemap: "streets",
-		          center: [-97.395, 37.537],
-		          zoom: 11
+		          center: [-118.407, 34.452],
+		          zoom: 13
 		        });
 		        
-		        dojo.connect(this.map, "onLayersAddResult", lang.hitch(this, 'initSelectToolbar'));
+		        /*dojo.connect(this.map, "onLayersAddResult", lang.hitch(this, 'initSelectToolbar'));*/
 
-		        var petroFieldsMSL = new esri.layers.ArcGISDynamicMapServiceLayer("http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Petroleum/KSFields/MapServer");
-		        petroFieldsMSL.setDisableClientCaching(true);
-		        this.map.addLayer(petroFieldsMSL);
+		        operationalLayer = new FeatureLayer("http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/Energy/Geology/FeatureServer/9", { 
+			          mode: FeatureLayer.MODE_ONDEMAND,
+			          outFields: ["objectid","lithology_type","metamorphic_facies","geomodifications"]
+			        });
+         
+        		operationalLayer.setSelectionSymbol(new esri.symbol.SimpleFillSymbol());
 
-		        var petroFieldsFL = new esri.layers.FeatureLayer("http://sampleserver3.arcgisonline.com/ArcGIS/rest/services/Petroleum/KSFields/FeatureServer/0", {
-		          mode: FeatureLayer.MODE_SELECTION,
-		          outFields: ["approxacre","objectid","field_name","activeprod","cumm_oil","cumm_gas","avgdepth"]
+        		dojo.connect(this.map,'onLayersAddResult',function(results){
+        			var layerInfos = [{
+		            'featureLayer': operationalLayer,
+		            'showAttachments': false,
+		            'isEditable': true,
+		            'showDeleteButton': false,
+		            'fieldInfos': [
+		              {'fieldName': 'objectid','tooltip': 'The station id.', 'label':'Object ID:','isEditable':false},
+		              {'fieldName': 'lithology_type', 'tooltip': 'The lithology type of the rock unit', 'label':'Lithology','isEditable':false},
+		              {'fieldName': 'metamorphic_facies','label':'Facies:','isEditable':false},
+		              {'fieldName': 'geomodifications', 'label':'Geomodifications','isEditable':true}
+		            ]
+		          }];
+        		var attInspector = new esri.dijit.AttributeInspector({
+            		layerInfos: layerInfos
+          				}, "attributesDiv");
+        		});
+    			
+		         var selectQuery = new esri.tasks.Query();
+        
+        		dojo.connect(this.map, "onClick", function(evt) {
+		          //dojo.byId('details').innerHTML = '';
+		          selectQuery.geometry = evt.mapPoint;
+		          operationalLayer.selectFeatures(selectQuery, esri.layers.FeatureLayer.SELECTION_NEW, null);
 		        });
-		        var selectionSymbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_NULL, new esri.symbol.SimpleLineSymbol("dashdot", new dojo.Color("yellow"), 2),null);
-		        petroFieldsFL.setSelectionSymbol(selectionSymbol);
 
-		        dojo.connect(petroFieldsFL, "onEditsComplete", function() {
-		          petroFieldsMSL.refresh();
-		        });
-
-		        this.map.addLayers([petroFieldsFL]);
+        		this.map.addLayers([operationalLayer]);
                 
     		},
-
-    		initSelectToolbar: function(results) {
-    			var updateFeature;
-    			console.log("start here");
-    			var petroFieldsFL = results[0].layer;
-    			console.log("petro field : " + petroFieldsFL);
-		        var selectQuery = new esri.tasks.Query();
-
-		        dojo.connect(this.map, "onClick", this, function(evt) {
-
-		        	map = this.map;
-		        	console.log("map click");
-		        	selectQuery.geometry = evt.mapPoint;
-		        	console.log("Query geom" + selectQuery.geometry);
-		          	petroFieldsFL.selectFeatures(selectQuery, FeatureLayer.SELECTION_NEW, function(features) {
-		            	console.log("feature length : " + features);
-			            if (features.length > 0) {
-			             //store the current feature
-			              updateFeature = features[0];
-			              
-			              this.map.infoWindow.setTitle(features[0].getLayer().name);
-			              console.log("set title to : " + features[0].getLayer().name)
-			              console.log("infoWindow : " );
-			              this.map.infoWindow.show(evt.screenPoint,map.getInfoWindowAnchor(evt.screenPoint));
-			            } else {
-			            	console.log("always in the else");
-			              map.infoWindow.hide();
-			            }
-		          });
-		          
-		        });
-
-		        dojo.connect(this.map.infoWindow, "onHide", function() {
-		          petroFieldsFL.clearSelection();
-		        });
-
-		        var layerInfos = [{
-		          'featureLayer': petroFieldsFL,
-		          'showAttachments': false,
-		          'isEditable': true,
-		          'fieldInfos': [
-		            {'fieldName': 'activeprod', 'isEditable':true, 'tooltip': 'Current Status', 'label':'Status:'},
-		            {'fieldName': 'field_name', 'isEditable':true, 'tooltip': 'The name of this oil field', 'label':'Field Name:'},
-		            {'fieldName': 'approxacre', 'isEditable':false,'label':'Acreage:'},
-		            {'fieldName': 'avgdepth', 'isEditable':false, 'label':'Average Depth:'},
-		            {'fieldName': 'cumm_oil', 'isEditable':false, 'label':'Cummulative Oil:'},
-		            {'fieldName': 'cumm_gas', 'isEditable':false, 'label':'Cummulative Gas:'}
-		          ]
-		        }];
-
-		        var attInspector = new attrInspect({
-		          layerInfos:layerInfos
-		        }, domConstruct.create("div"));
-		        
-		        //add a save button next to the delete button
-		        var saveButton = new dijit.form.Button({label:"Save","class":"saveButton"});
-		        domConstruct.place(saveButton.domNode, attInspector.deleteBtn.domNode, "after");
-		       
-		        dojo.connect(saveButton,"onClick",function(){
-		           updateFeature.getLayer().applyEdits(null, [updateFeature], null);         
-		        });
-		        
-		        dojo.connect(attInspector, "onAttributeChange", function(feature,fieldName,newFieldValue) {
-		          //store the updates to apply when the save button is clicked 
-		           updateFeature.attributes[fieldName] = newFieldValue;
-		        });
-		        
-		        dojo.connect(attInspector,"onNext",function(feature){
-		          updateFeature = feature;
-		          console.log("Next " + this.updateFeature.attributes.objectid);
-		        });
-		        
-		        dojo.connect(attInspector, "onDelete",function(feature){
-		          feature.getLayer().applyEdits(null,null,[feature]);
-		          this.map.infoWindow.hide();
-		        });
-
-		        this.map.infoWindow.setContent(attInspector.domNode);
-		        this.map.infoWindow.resize(325, 220);
-		        
-		    },
     		initWidgets: function(){
     			// init the esri geocode widget 
     		}
