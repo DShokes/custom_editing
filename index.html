@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html >
+<head>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=7, IE=9, IE=10">
+    <!--The viewport meta tag is used to improve the presentation and behavior of the samples 
+      on iOS devices-->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no">
+    <title>Editable FeatureLayer in Selection Only Mode with Attribute Inspector</title>
+
+    <link rel="stylesheet" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.4/js/dojo/dijit/themes/claro/claro.css">
+    <link rel="stylesheet" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.4/js/esri/css/esri.css" />
+    <link rel="stylesheet" type="text/css" href="main.css">
+ <script type="text/javascript">
+            var dojoConfig = {
+                async: true,
+                parseOnLoad:false,
+                packages: [{
+                    name: "js",
+                    location: location.pathname.replace(/\/[^/]+$/, "")  + "/js"
+                }]
+            };
+        </script>
+        <script type="text/javascript" src="http://serverapi.arcgisonline.com/jsapi/arcgis/?v=3.4">
+        </script>
+        <script type="text/javascript">
+            require(["js/main"], function(main){
+                main.startup();
+            });
+        </script>
+<body class="claro">
+    <div data-dojo-type="dijit/layout/BorderContainer" style="width: 100%; height: 100%">
+         <div id="map" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'center'"></div>
+         <div id="ft" data-dojo-type="dijit/layout/ContentPane" data-dojo-props="region:'bottom'">           
+            
+
+        <div data-dojo-type="dijit.layout.BorderContainer" design="headline" persist="false" gutters="false" style="min-width: 1em; min-height: 1px; z-index: 0; width: 100%; height: 100%;">
+        <div data-dojo-type="dijit.layout.ContentPane"  preload="false" region="left" style="width: 275px;">
+            <h6 id="appTitle">Custom Editing</h6> 
+            <img id="bearpantherImage" src="img/bearpanther.png">
+        </div>
+        <div id="ft_rightPanel" data-dojo-type="dijit.layout.ContentPane" extractContent="false" preventCache="false" preload="false" refreshOnShow="false" region="right" splitter="false" doLayout="false" style="width: 350px;"></div>
+        <div id="attrInspector" data-dojo-type="dijit.layout.ContentPane" extractContent="false" preventCache="false" preload="false" refreshOnShow="false" region="center" splitter="false"  doLayout="false"></div>
+        </div>
+  </div>
+   
+
+         </div>
+    </div>
+</body>
+</html>
