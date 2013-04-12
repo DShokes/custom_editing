@@ -41,7 +41,7 @@ define(['esri/map',
 
 		        operationalLayer = new FeatureLayer("http://sampleserver5.arcgisonline.com/ArcGIS/rest/services/Energy/Geology/FeatureServer/9", { 
 			          mode: FeatureLayer.MODE_ONDEMAND,
-			          outFields: ["objectid","lithology_type","metamorphic_facies","geomodifications"]
+			          outFields: ["OBJECTID","lithology_type","metamorphic_facies","geomodifications"]
 			        });
          
         		operationalLayer.setSelectionSymbol(new esri.symbol.SimpleFillSymbol());
@@ -53,7 +53,7 @@ define(['esri/map',
 		            'isEditable': true,
 		            'showDeleteButton': false,
 		            'fieldInfos': [
-		              {'fieldName': 'objectid','tooltip': 'The station id.', 'label':'Object ID:','isEditable':false},
+		              {'fieldName': 'OBJECTID','tooltip': 'The station id.', 'label':'Object ID:','isEditable':false},
 		              {'fieldName': 'lithology_type', 'tooltip': 'The lithology type of the rock unit', 'label':'Lithology','isEditable':false},
 		              {'fieldName': 'metamorphic_facies','label':'Facies:','isEditable':false},
 		              {'fieldName': 'geomodifications', 'label':'Geomodifications','isEditable':true}
@@ -65,11 +65,13 @@ define(['esri/map',
         		});
     			
 		         var selectQuery = new esri.tasks.Query();
-        
+        			
         		dojo.connect(this.map, "onClick", function(evt) {
 		          //dojo.byId('details').innerHTML = '';
 		          selectQuery.geometry = evt.mapPoint;
+		          selectQuery.objectIds = [evt.graphic.attributes.objectid];
 		          operationalLayer.selectFeatures(selectQuery, esri.layers.FeatureLayer.SELECTION_NEW, null);
+
 		        });
 
         		this.map.addLayers([operationalLayer]);
