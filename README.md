@@ -1,7 +1,6 @@
 #ArcGIS Online Editing Sample
 
-Simple example of attribute inspector and editing. 
-
+Simple example of attribute inspector and editing. This sample shows how to retrieve the ObjectID in the attribute inspector. 
 
 
 [View it live](http://thejones.github.com/custom_editing/index.html)
